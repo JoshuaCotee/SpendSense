@@ -1,3 +1,18 @@
+# To check emulators list
+emulator -list-avds
+
+# STEP 1: To start emulator:
+emulator -avd Pixel_7_Pro
+
+# STEP 2: START PROJECT + CONNECT WITH EMULATOR
+npx react-native run-android
+
+
+# TO BUILD ANDORID APP .APK
+cd android
+./gradlew assembleRelease
+
+
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started

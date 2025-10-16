@@ -1,0 +1,17 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Cabin-Italic-VariableFont_wdth,wght.ttf",
+      "sha1": "124f2480e66926822b74f8bf066b2193c8d78edd"
+    },
+    {
+      "path": "src/assets/fonts/Cabin-VariableFont_wdth,wght.ttf",
+      "sha1": "6afc9499bc1b53bf3af5a2512381054ac6147e68"
+    },
+    {
+      "path": "src/assets/fonts/SpaceGrotesk-VariableFont_wght.ttf",
+      "sha1": "0e9348243185d6cb2e32014b3ee80959ef645b52"
+    }
+  ]
+}
