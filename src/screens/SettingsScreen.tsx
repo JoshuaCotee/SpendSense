@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, Share, TextInput, Platform, PermissionsAndroid } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import RNFS from 'react-native-fs';
@@ -68,13 +69,20 @@ export default function SettingsScreen({ navigation }: any) {
   const { refreshCategories } = useCategories();
   const { refreshCurrency } = useCurrency();
   const { refreshProfile } = useUserProfile();
-  const { isEnabled: notificationsEnabled, hasPermission: hasNotificationPermission, toggleNotifications, requestPermission } = useNotifications();
+  const { isEnabled: notificationsEnabled, hasPermission: hasNotificationPermission, toggleNotifications, requestPermission, refreshStatus: refreshNotificationStatus } = useNotifications();
   const [backupPassphrase, setBackupPassphrase] = useState('');
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const bottomPadding = insets.bottom + 30;
 
   const dynamicStyles = getDynamicStyles(theme);
+
+  // Refresh notification status when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshNotificationStatus();
+    }, [refreshNotificationStatus])
+  );
 
   const requestAndroidStoragePermission = async (): Promise<boolean> => {
     if (Platform.OS !== 'android') {
@@ -631,6 +639,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignItems: "center",
+    paddingBottom: 50,
   },
   footerText: {
     fontSize: 12,

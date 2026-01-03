@@ -184,32 +184,22 @@ export async function initializeNotifications(): Promise<void> {
         logger.info('FCM token refreshed');
       });
 
-      getMessaging().setBackgroundMessageHandler(async (remoteMessage: any) => {
-        logger.info('Background message received', remoteMessage);
-      });
+      // Background handler in index.js
 
       const onMessageUnsubscribe = getMessaging().onMessage(async (remoteMessage: any) => {
         const messageId = remoteMessage?.messageId;
         const now = Date.now();
         
+        // Check duplicates
         if (messageId) {
           const lastProcessed = state.processedMessageIds.get(messageId);
           if (lastProcessed && (now - lastProcessed) < 5000) {
             logger.info('Duplicate message handler call skipped', { messageId, timeSinceLast: now - lastProcessed });
             return;
           }
-          state.processedMessageIds.set(messageId, now);
-          
-          if (state.processedMessageIds.size > 100) {
-            const oneMinuteAgo = now - 60000;
-            for (const [id, timestamp] of state.processedMessageIds.entries()) {
-              if (timestamp < oneMinuteAgo) {
-                state.processedMessageIds.delete(id);
-              }
-            }
-          }
         }
         
+        // Lock to prevent concurrent
         if (state.messageHandlerLock) {
           logger.info('Message handler locked, skipping', { messageId });
           return;
@@ -217,6 +207,20 @@ export async function initializeNotifications(): Promise<void> {
         state.messageHandlerLock = true;
         
         try {
+          // Mark processed
+          if (messageId) {
+            state.processedMessageIds.set(messageId, now);
+            
+            if (state.processedMessageIds.size > 100) {
+              const oneMinuteAgo = now - 60000;
+              for (const [id, timestamp] of state.processedMessageIds.entries()) {
+                if (timestamp < oneMinuteAgo) {
+                  state.processedMessageIds.delete(id);
+                }
+              }
+            }
+          }
+          
           logger.info('Foreground message received', remoteMessage);
           await displayNotification(remoteMessage);
         } finally {
@@ -285,37 +289,67 @@ async function createNotificationChannels(): Promise<void> {
 
 const FCM_DEBOUNCE_WINDOW_MS = 2000;
 
-async function displayNotification(remoteMessage: any): Promise<void> {
-  const { notification, data } = remoteMessage;
-  const baseMessageId = remoteMessage?.messageId ?? data?.id ?? `fcm-${Date.now()}`;
-  const now = Date.now();
-
-  const lastDisplayTime = state.displayedMessages.get(baseMessageId);
-  if (lastDisplayTime && (now - lastDisplayTime) < FCM_DEBOUNCE_WINDOW_MS) {
-    logger.info('Duplicate FCM notification skipped', { baseMessageId, timeSinceLast: now - lastDisplayTime });
-    return;
-  }
-
-  state.displayedMessages.set(baseMessageId, now);
-
-  const oneMinuteAgo = now - 60000;
-  for (const [key, timestamp] of state.displayedMessages.entries()) {
-    if (timestamp < oneMinuteAgo) {
-      state.displayedMessages.delete(key);
-    }
-  }
-
+// Background handler
+export async function handleBackgroundMessage(remoteMessage: any): Promise<void> {
   try {
-    const messageId = baseMessageId;
+    logger.info('Background message received', remoteMessage);
+    
+    // Create channels (Android)
+    if (Platform.OS === 'android') {
+      await createNotificationChannels();
+    }
+    
+    // Display notification
+    await displayNotification(remoteMessage);
+  } catch (error) {
+    logger.error('Error handling background message', error);
+  }
+}
 
+// Display notification
+export async function displayNotification(remoteMessage: any): Promise<void> {
+  try {
+    const { notification, data } = remoteMessage || {};
+    const baseMessageId = remoteMessage?.messageId ?? data?.id ?? `fcm-${Date.now()}`;
+    const now = Date.now();
+
+    // Skip if empty
+    if (!notification && !data) {
+      logger.warn('Notification skipped - no notification or data field', remoteMessage);
+      return;
+    }
+
+    const lastDisplayTime = state.displayedMessages.get(baseMessageId);
+    if (lastDisplayTime && (now - lastDisplayTime) < FCM_DEBOUNCE_WINDOW_MS) {
+      logger.info('Duplicate FCM notification skipped', { baseMessageId, timeSinceLast: now - lastDisplayTime });
+      return;
+    }
+
+    state.displayedMessages.set(baseMessageId, now);
+
+    const oneMinuteAgo = now - 60000;
+    for (const [key, timestamp] of state.displayedMessages.entries()) {
+      if (timestamp < oneMinuteAgo) {
+        state.displayedMessages.delete(key);
+      }
+    }
+
+    const messageId = baseMessageId;
     const channelId = data?.channelId || 'transaction-reminders';
-    const customTitle = data?.customTitle || notification?.title;
-    const customBody = data?.customBody || notification?.body;
+    
+    // Support FCM and custom formats
+    const title = data?.customTitle || data?.title || notification?.title || 'SpendSense';
+    const body = data?.customBody || data?.body || notification?.body || '';
+
+    if (!title && !body) {
+      logger.warn('Notification skipped - no title or body', remoteMessage);
+      return;
+    }
 
     await notifee.displayNotification({
       id: messageId,
-      title: customTitle || 'SpendSense',
-      body: customBody || '',
+      title: title,
+      body: body,
       android: {
         channelId: channelId === 'custom-alerts' ? 'custom-alerts' : 'transaction-reminders',
         importance: AndroidImportance.HIGH,
@@ -330,9 +364,9 @@ async function displayNotification(remoteMessage: any): Promise<void> {
       data: data || {},
     });
 
-    logger.info('Notification displayed', { messageId, baseMessageId });
+    logger.info('Notification displayed successfully', { messageId, baseMessageId, title, body });
   } catch (error) {
-    logger.error('Error displaying notification', error);
+    logger.error('Error displaying notification', error, { remoteMessage });
   }
 }
 

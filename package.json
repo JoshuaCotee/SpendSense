@@ -7,7 +7,13 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "build:android": "cd android && ./gradlew assembleRelease",
+    "build:android:bundle": "cd android && ./gradlew bundleRelease",
+    "build:ios": "eas build --platform ios",
+    "build:ios:preview": "eas build --platform ios --profile preview",
+    "build:ios:production": "eas build --platform ios --profile production",
+    "build:android:local": "cd android && ./gradlew assembleRelease && echo Build complete! APK location: android/app/build/outputs/apk/release/app-release.apk"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",

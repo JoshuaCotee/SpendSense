@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import { getStreak, updateStreak, checkAndUpdateStreak } from '@services/StreakService';
+import { getStreak, updateStreakOnTransaction as updateStreakOnTransactionService, checkAndUpdateStreak } from '@services/StreakService';
 import { logger } from '@utils/logger';
 import { AppState, AppStateStatus } from 'react-native';
 
 interface StreakContextType {
   streak: number;
   refreshStreak: () => Promise<void>;
-  updateStreakOnAppUse: () => Promise<void>;
+  updateStreakOnTransaction: () => Promise<void>;
 }
 
 const StreakContext = createContext<StreakContextType | undefined>(undefined);
@@ -23,21 +23,21 @@ export const StreakProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, []);
 
-  const updateStreakOnAppUse = useCallback(async () => {
+  const updateStreakOnTransaction = useCallback(async () => {
     try {
-      const newStreak = await updateStreak();
+      const newStreak = await updateStreakOnTransactionService();
       setStreak(newStreak);
     } catch (error) {
-      logger.error('Error updating streak on app use', error);
+      logger.error('Error updating streak on transaction', error);
     }
   }, []);
 
   useEffect(() => {
     const initStreak = async () => {
       try {
+        // Check/reset only
         const checkedStreak = await checkAndUpdateStreak();
         setStreak(checkedStreak);
-        await updateStreakOnAppUse();
       } catch (error) {
         logger.error('Error initializing streak', error);
       }
@@ -46,16 +46,16 @@ export const StreakProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
-        const checkAndUpdate = async () => {
+        const checkStreak = async () => {
           try {
+            // Check/reset only
             const checkedStreak = await checkAndUpdateStreak();
             setStreak(checkedStreak);
-            await updateStreakOnAppUse();
           } catch (error) {
             logger.error('Error checking streak on app state change', error);
           }
         };
-        checkAndUpdate();
+        checkStreak();
       }
     };
 
@@ -64,15 +64,15 @@ export const StreakProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return () => {
       subscription.remove();
     };
-  }, [updateStreakOnAppUse]);
+  }, []);
 
   const contextValue = React.useMemo(
     () => ({
       streak,
       refreshStreak,
-      updateStreakOnAppUse,
+      updateStreakOnTransaction,
     }),
-    [streak, refreshStreak, updateStreakOnAppUse]
+    [streak, refreshStreak, updateStreakOnTransaction]
   );
 
   return (
@@ -89,4 +89,3 @@ export const useStreak = () => {
   }
   return context;
 };
-

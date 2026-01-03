@@ -9,6 +9,7 @@ import {
   removeTransactionFromSummaries,
   recalculateSummaries,
 } from "@services/SummariesService";
+import { updateStreakOnTransaction } from "@services/StreakService";
 
 export interface Transaction {
   id: string;
@@ -82,6 +83,10 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       .then(() => {
         addTransactionToSummaries(t).catch((err) => {
           logger.error("Failed to update summaries", err);
+        });
+        // Update streak when transaction is added
+        updateStreakOnTransaction().catch((err) => {
+          logger.error("Failed to update streak", err);
         });
       })
       .catch(() => {

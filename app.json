@@ -1,4 +1,34 @@
 {
   "name": "SpendSense",
-  "displayName": "SpendSense"
+  "displayName": "SpendSense",
+  "expo": {
+    "name": "SpendSense",
+    "slug": "spendsense",
+    "version": "0.2.1",
+    "orientation": "portrait",
+    "icon": "./src/assets/images/logo-app.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./src/assets/images/logo-app.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "bundleIdentifier": "com.myfinanceapp",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "We need access to your camera to attach images to transactions.",
+        "NSPhotoLibraryUsageDescription": "We need access to your photo library to select images for transactions.",
+        "NSPhotoLibraryAddUsageDescription": "We need permission to save images to your gallery."
+      }
+    },
+    "android": {
+      "package": "com.myfinanceapp",
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/images/logo-app.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "plugins": []
+  }
 }

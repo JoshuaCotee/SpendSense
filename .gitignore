@@ -66,3 +66,23 @@ other/
 # Firebase
 google-services.json
 GoogleService-Info.plist
+
+# EAS
+eas.json
+
+# Builds
+android/app/build/
+ios/build/
+android/app/build/outputs/
+ios/build/outputs/
+android/app/build/outputs/apk/
+ios/build/outputs/ipa/
+android/app/build/outputs/bundle/
+ios/build/outputs/ipa/
+android/app/build/outputs/apk/
+ios/build/outputs/ipa/
+
+BUILD_GUIDE.md
+QUICK_START_BUILD.md
+build-android.bat
+build-android.sh
