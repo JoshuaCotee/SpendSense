@@ -15,7 +15,7 @@
 ## 🎊 What's New
 
 This is the **first official release** of SpendSense, bringing you a complete, feature-rich personal finance management solution. After months of development, we're excited to share this powerful tool with the open-source community.
-
+ 
 ---
 
 ## ✨ Major Features
