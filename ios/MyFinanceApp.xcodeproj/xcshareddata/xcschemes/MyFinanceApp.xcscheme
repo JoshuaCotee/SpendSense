@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "MyFinanceApp.app"
-               BlueprintName = "MyFinanceApp"
-               ReferencedContainer = "container:MyFinanceApp.xcodeproj">
+               BuildableName = "SpendSense.app"
+               BlueprintName = "SpendSense"
+               ReferencedContainer = "container:SpendSense.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "MyFinanceAppTests.xctest"
-               BlueprintName = "MyFinanceAppTests"
-               ReferencedContainer = "container:MyFinanceApp.xcodeproj">
+               BuildableName = "SpendSenseTests.xctest"
+               BlueprintName = "SpendSenseTests"
+               ReferencedContainer = "container:SpendSense.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MyFinanceApp.app"
-            BlueprintName = "MyFinanceApp"
-            ReferencedContainer = "container:MyFinanceApp.xcodeproj">
+            BuildableName = "SpendSense.app"
+            BlueprintName = "SpendSense"
+            ReferencedContainer = "container:SpendSense.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MyFinanceApp.app"
-            BlueprintName = "MyFinanceApp"
-            ReferencedContainer = "container:MyFinanceApp.xcodeproj">
+            BuildableName = "SpendSense.app"
+            BlueprintName = "SpendSense"
+            ReferencedContainer = "container:SpendSense.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

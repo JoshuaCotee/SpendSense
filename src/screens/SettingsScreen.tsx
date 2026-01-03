@@ -88,7 +88,7 @@ export default function SettingsScreen({ navigation }: any) {
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
         {
           title: 'Storage Permission',
-          message: 'MyFinanceApp needs access to your storage to save backup files.',
+          message: 'SpendSense needs access to your storage to save backup files.',
           buttonNeutral: 'Ask Me Later',
           buttonNegative: 'Cancel',
           buttonPositive: 'OK',
@@ -126,7 +126,7 @@ export default function SettingsScreen({ navigation }: any) {
       const jsonString = backupToJson(backup);
       
       const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
-      const filename = `MyFinanceApp_Backup_${timestamp}.json`;
+      const filename = `SpendSense_Backup_${timestamp}.json`;
       
       if (Platform.OS === 'android') {
         const hasPermission = await requestAndroidStoragePermission();
@@ -474,7 +474,7 @@ export default function SettingsScreen({ navigation }: any) {
         </View>
 
         <View style={styles.footer}>
-          <Text style={[styles.footerText, dynamicStyles.footerText]}>MyFinanceApp v1.0.0</Text>
+          <Text style={[styles.footerText, dynamicStyles.footerText]}>SpendSense v1.0.0</Text>
         </View>
       </ScrollView>
     </PageLayout>

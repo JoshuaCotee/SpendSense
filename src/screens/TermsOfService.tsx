@@ -29,14 +29,14 @@ export default function TermsOfService({ navigation }: any) {
         <View style={styles.section}>
           <Text style={[styles.heading, dynamicStyles.heading]}>1. Agreement to Terms</Text>
           <Text style={[styles.text, dynamicStyles.text]}>
-            By accessing or using MyFinanceApp ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of these terms, you may not access the App.
+            By accessing or using SpendSense ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of these terms, you may not access the App.
           </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={[styles.heading, dynamicStyles.heading]}>2. Description of Service</Text>
           <Text style={[styles.text, dynamicStyles.text]}>
-            MyFinanceApp is a personal finance management application that allows you to track income, expenses, and manage your financial transactions. The App provides tools for categorizing transactions, managing accounts, and generating financial reports.
+            SpendSense is a personal finance management application that allows you to track income, expenses, and manage your financial transactions. The App provides tools for categorizing transactions, managing accounts, and generating financial reports.
           </Text>
         </View>
 

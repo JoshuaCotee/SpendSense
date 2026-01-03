@@ -29,7 +29,7 @@ export default function PrivacyPolicy({ navigation }: any) {
         <View style={styles.section}>
           <Text style={[styles.heading, dynamicStyles.heading]}>1. Introduction</Text>
           <Text style={[styles.text, dynamicStyles.text]}>
-            MyFinanceApp ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.
+            SpendSense ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.
           </Text>
         </View>
 
