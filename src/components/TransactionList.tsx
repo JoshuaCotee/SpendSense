@@ -37,14 +37,6 @@ export default React.memo(function TransactionList({
     []
   );
 
-  if (data.length === 0) {
-    return (
-      <View style={styles.empty}>
-        <Text style={{ color: theme.colors.textSecondary }}>No transactions yet.</Text>
-      </View>
-    );
-  }
-
   const renderItem = useCallback(({ item, index }: { item: Transaction; index: number }) => {
     const isLast = index === data.length - 1;
 
@@ -108,6 +100,14 @@ export default React.memo(function TransactionList({
       </>
     );
   }, [data.length, selectedCurrency.symbol, onTransactionPress, theme]);
+
+  if (data.length === 0) {
+    return (
+      <View style={styles.empty}>
+        <Text style={{ color: theme.colors.textSecondary }}>No transactions yet.</Text>
+      </View>
+    );
+  }
 
   return (
     <FlatList

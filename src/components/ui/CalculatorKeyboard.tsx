@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, memo } from "react";
+import React, { useEffect, useRef, useState, useCallback, memo, useMemo } from "react";
 import {
   Animated,
   Easing,
@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import ReactNativeHapticFeedback from "react-native-haptic-feedback";
+import { useTheme } from "@context/ThemeContext";
 
 interface Props {
   visible: boolean;
@@ -31,6 +32,7 @@ const haptic = (type: "light" | "success" | "error" = "light") => {
 
 export const CalculatorKeyboard: React.FC<Props> = memo(
   ({ visible, initialValue = "", onResult, onClose }) => {
+    const { theme } = useTheme();
     const [value, setValue] = useState("0");
     const slideAnim = useRef(new Animated.Value(300)).current;
 
@@ -149,6 +151,42 @@ export const CalculatorKeyboard: React.FC<Props> = memo(
       ["0", ".", "⌫"],
     ];
 
+    const dynamicStyles = useMemo(() => ({
+      keyboardContainer: {
+        backgroundColor: theme.colors.card,
+        shadowColor: theme.colors.shadow,
+      },
+      displayContainer: {
+        backgroundColor: theme.colors.surface,
+        borderColor: theme.colors.border,
+      },
+      display: {
+        color: theme.colors.text,
+      },
+      btn: {
+        backgroundColor: theme.colors.surface,
+        borderColor: theme.colors.border,
+      },
+      btnText: {
+        color: theme.colors.text,
+      },
+      backspaceBtn: {
+        backgroundColor: theme.colors.surface,
+        borderColor: theme.colors.border,
+      },
+      backspaceText: {
+        color: theme.colors.textSecondary,
+      },
+      okBtn: {
+        backgroundColor: theme.colors.primary,
+        borderColor: theme.colors.primary,
+      },
+      clearBtn: {
+        backgroundColor: theme.colors.error,
+        borderColor: theme.colors.error,
+      },
+    }), [theme]);
+
     return (
       <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
         <TouchableWithoutFeedback onPress={onClose}>
@@ -158,12 +196,13 @@ export const CalculatorKeyboard: React.FC<Props> = memo(
         <Animated.View
           style={[
             styles.keyboardContainer,
+            dynamicStyles.keyboardContainer,
             { transform: [{ translateY: slideAnim }] },
           ]}
           onStartShouldSetResponder={() => true}
         >
-          <View style={styles.displayContainer}>
-            <Text style={styles.display}>{formattedDisplay}</Text>
+          <View style={[styles.displayContainer, dynamicStyles.displayContainer]}>
+            <Text style={[styles.display, dynamicStyles.display]}>{formattedDisplay}</Text>
           </View>
 
           {buttons.map((row, i) => (
@@ -173,11 +212,11 @@ export const CalculatorKeyboard: React.FC<Props> = memo(
                   return (
                     <TouchableOpacity
                       key={btn}
-                      style={[styles.btn, styles.backspaceBtn]}
+                      style={[styles.btn, dynamicStyles.btn, dynamicStyles.backspaceBtn]}
                       onPress={handleBackspace}
                       activeOpacity={0.6}
                     >
-                      <Text style={[styles.btnText, styles.backspaceText]}>⌫</Text>
+                      <Text style={[styles.btnText, dynamicStyles.backspaceText]}>⌫</Text>
                     </TouchableOpacity>
                   );
                 }
@@ -185,22 +224,22 @@ export const CalculatorKeyboard: React.FC<Props> = memo(
                   return (
                     <TouchableOpacity
                       key={btn}
-                      style={styles.btn}
+                      style={[styles.btn, dynamicStyles.btn]}
                       onPress={handleDecimalPress}
                       activeOpacity={0.6}
                     >
-                      <Text style={styles.btnText}>.</Text>
+                      <Text style={[styles.btnText, dynamicStyles.btnText]}>.</Text>
                     </TouchableOpacity>
                   );
                 }
                 return (
                   <TouchableOpacity
                     key={btn}
-                    style={styles.btn}
+                    style={[styles.btn, dynamicStyles.btn]}
                     onPress={() => handleNumberPress(btn)}
                     activeOpacity={0.6}
                   >
-                    <Text style={styles.btnText}>{btn}</Text>
+                    <Text style={[styles.btnText, dynamicStyles.btnText]}>{btn}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -209,14 +248,14 @@ export const CalculatorKeyboard: React.FC<Props> = memo(
 
           <View style={styles.bottomRow}>
             <TouchableOpacity
-              style={[styles.btn, styles.clearBtn]}
+              style={[styles.btn, dynamicStyles.clearBtn]}
               onPress={handleClear}
               activeOpacity={0.6}
             >
               <Text style={[styles.btnText, styles.clearText]}>Clear</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.btn, styles.okBtn]}
+              style={[styles.btn, dynamicStyles.okBtn]}
               onPress={handleOK}
               activeOpacity={0.6}
             >
@@ -239,31 +278,26 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingVertical: 25,
     paddingHorizontal: 20,
-    shadowColor: "#000",
     shadowOffset: { width: 0, height: -5 },
     shadowOpacity: 0.2,
     shadowRadius: 15,
     elevation: 25,
   },
   displayContainer: {
-    backgroundColor: "#f8f8f8",
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: "#e0e0e0",
   },
   display: {
     fontSize: 36,
     fontWeight: "700",
     fontFamily: "Space Grotesk",
     textAlign: "right",
-    color: "#111",
     letterSpacing: 1,
   },
   row: {
@@ -282,41 +316,21 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 18,
     borderRadius: 14,
-    backgroundColor: "#f5f5f5",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#e0e0e0",
   },
   btnText: {
     fontSize: 22,
     fontWeight: "600",
     fontFamily: "Space Grotesk",
-    color: "#111",
-  },
-  okBtn: {
-    backgroundColor: "#901ddc",
-    borderColor: "#901ddc",
   },
   okText: {
     color: "#fff",
     fontWeight: "700",
   },
-  clearBtn: {
-    backgroundColor: "#ff7070",
-    borderColor: "#ff7070",
-  },
   clearText: {
     color: "#fff",
     fontWeight: "700",
-  },
-  backspaceBtn: {
-    backgroundColor: "#f2f2f2",
-    borderColor: "#d0d0d0",
-  },
-  backspaceText: {
-    fontWeight: "700",
-    color: "#444",
-    fontSize: 24,
   },
 });

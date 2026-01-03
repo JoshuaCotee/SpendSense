@@ -32,19 +32,19 @@ const steps = [
     title: 'Track your daily goals.', 
     text: 'Stay on top of your <b>progress</b> and <b>achieve</b> more.',
     subtitle: 'Monitor your habits, celebrate wins, and stay motivated daily.',
-    image: require('../assets/images/onboarding/welcome-img.png'),
+    image: require('../assets/images/onboarding/screenTwo.png'),
   },
   { 
     title: 'Earn rewards for progress.', 
     text: 'Your <b>consistency</b> deserves recognition.',
     subtitle: 'Collect points, unlock achievements, and celebrate your journey.',
-    image: require('../assets/images/onboarding/welcome-img.png'),
+    image: require('../assets/images/onboarding/screenThree.png'),
   },
   { 
     title: 'Connect with friends.', 
     text: 'Learn, <b>share</b>, and <b>celebrate</b> success together.',
     subtitle: 'Engage with a community of learners and celebrate achievements.',
-    image: require('../assets/images/onboarding/welcome-img.png'),
+    image: require('../assets/images/onboarding/screenFour.png'),
   },
   { 
     title: 'Ready to start?', 
@@ -59,7 +59,7 @@ const easterEggStep = {
   title: 'Special Message!',
   text: 'Oh look, you have the <b>same name</b> as my Gorgeous wife!',
   subtitle: 'This app was specially made for this specific name!',
-  image: require('../assets/images/onboarding/welcome-img.png'),
+  image: require('../assets/images/onboarding/easter.png'),
 };
 
 // Check easter egg name
