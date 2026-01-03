@@ -330,6 +330,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 📰 Release Notes
+
+- **[v1.0.0 Release Notes](RELEASE_NOTES.md)** - Check out what's new in the first release!
+- **[Changelog](CHANGELOG.md)** - Detailed list of all changes
+
+---
+
 ## 🗺️ Todo list
 
 - [ ] Budget planning and alerts
