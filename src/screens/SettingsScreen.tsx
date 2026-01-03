@@ -14,6 +14,7 @@ import { useAccounts } from '@context/AccountsContext';
 import { useCategories } from '@context/CategoriesContext';
 import { useCurrency } from '@context/CurrencyContext';
 import { useUserProfile } from '@context/UserProfileContext';
+import { useNotifications } from '@context/NotificationContext';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { logger } from '@utils/logger';
 
@@ -67,6 +68,7 @@ export default function SettingsScreen({ navigation }: any) {
   const { refreshCategories } = useCategories();
   const { refreshCurrency } = useCurrency();
   const { refreshProfile } = useUserProfile();
+  const { isEnabled: notificationsEnabled, hasPermission: hasNotificationPermission, toggleNotifications, requestPermission } = useNotifications();
   const [backupPassphrase, setBackupPassphrase] = useState('');
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -315,6 +317,51 @@ export default function SettingsScreen({ navigation }: any) {
               thumbColor={theme.isDark ? theme.colors.primary : '#f4f3f4'}
             />
           </View>
+
+          <View style={[styles.settingsItem, dynamicStyles.settingsItem]}>
+            <View style={styles.settingsItemLeft}>
+              <View style={[styles.iconContainer, dynamicStyles.iconContainer]}>
+                <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <Path
+                    d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+                    fill={theme.colors.primary}
+                  />
+                </Svg>
+              </View>
+              <View style={styles.textContainer}>
+                <Text style={[styles.settingsItemTitle, dynamicStyles.settingsItemTitle]}>Daily Reminders</Text>
+                <Text style={[styles.settingsItemSubtitle, dynamicStyles.settingsItemSubtitle]}>
+                  {notificationsEnabled && hasNotificationPermission 
+                    ? 'Reminders enabled (9 PM daily)' 
+                    : hasNotificationPermission 
+                    ? 'Reminders disabled' 
+                    : 'Permission required'}
+                </Text>
+              </View>
+            </View>
+            <Switch
+              value={notificationsEnabled && hasNotificationPermission}
+              onValueChange={async () => {
+                if (!hasNotificationPermission) {
+                  const granted = await requestPermission();
+                  if (granted) {
+                    await toggleNotifications();
+                  } else {
+                    showAlert({
+                      title: 'Permission Required',
+                      message: 'Please enable notifications in your device settings to receive daily reminders.',
+                      type: 'error',
+                    });
+                  }
+                } else {
+                  await toggleNotifications();
+                }
+              }}
+              trackColor={{ false: '#e0e0e0', true: theme.colors.primaryLight }}
+              thumbColor={notificationsEnabled && hasNotificationPermission ? theme.colors.primary : '#f4f3f4'}
+            />
+          </View>
+
 
           <SettingsItem
             icon={

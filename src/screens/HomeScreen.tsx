@@ -13,6 +13,7 @@ import { useTheme } from "@context/ThemeContext";
 import { useGoals } from "@context/GoalsContext";
 import { useTransactions } from "@context/TransactionsContext";
 import { useCurrency } from "@context/CurrencyContext";
+import { useStreak } from "@context/StreakContext";
 import { calculateNetIncome, calculateMonthlySavings, calculateOverallGoalsProgress, findClosestGoal } from "@utils/calculations";
 import type { AppNavigation } from "@app-types/navigation";
 
@@ -24,6 +25,7 @@ export default React.memo(function HomeScreen() {
   const { goals } = useGoals();
   const { transactions } = useTransactions();
   const { selectedCurrency } = useCurrency();
+  const { streak } = useStreak();
   
   const displayName = useMemo(() => profile.firstName || "Mister", [profile.firstName]);
 
@@ -72,7 +74,9 @@ export default React.memo(function HomeScreen() {
           <View style={styles.profileContainerRight}>
             <View style={[styles.streakCounter, dynamicStyles.streakCounter]}>
               <Text style={styles.streakEmoji}>🔥</Text>
-              <Text style={[styles.streakCount, dynamicStyles.streakCount]}>05</Text>
+              <Text style={[styles.streakCount, dynamicStyles.streakCount]}>
+                {streak.toString().padStart(2, '0')}
+              </Text>
             </View>
           </View>
         </View>

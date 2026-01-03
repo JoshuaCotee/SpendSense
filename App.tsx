@@ -13,6 +13,8 @@ import { UserProfileProvider } from '@context/UserProfileContext';
 import { AlertProvider } from '@context/AlertContext';
 import { ThemeProvider, useTheme } from '@context/ThemeContext';
 import { GoalsProvider } from '@context/GoalsContext';
+import { NotificationProvider } from '@context/NotificationContext';
+import { StreakProvider } from '@context/StreakContext';
 import { ErrorBoundary } from '@components/ErrorBoundary';
 import { checkAndMigrateStorage } from '@services/StorageService';
 
@@ -90,11 +92,15 @@ const App = () => {
                 <UserProfileProvider>
                   <TransactionsProvider>
                     <GoalsProvider>
-                      <AlertProvider>
-                        <ModalProvider>
-                          <AppContent />
-                        </ModalProvider>
-                      </AlertProvider>
+                      <NotificationProvider>
+                        <StreakProvider>
+                          <AlertProvider>
+                            <ModalProvider>
+                              <AppContent />
+                            </ModalProvider>
+                          </AlertProvider>
+                        </StreakProvider>
+                      </NotificationProvider>
                     </GoalsProvider>
                   </TransactionsProvider>
                 </UserProfileProvider>
