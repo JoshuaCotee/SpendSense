@@ -5,7 +5,7 @@ module.exports = {
     [
       'module-resolver',
       {
-        root: ['./src'],
+        root: ['./'],
         alias: {
           '@assets': './src/assets',
           '@images': './src/assets/images',
@@ -16,6 +16,10 @@ module.exports = {
           '@context': './src/context',
           '@navigation': './src/navigation',
           '@constants': './src/constants',
+          '@utils': './src/utils',
+          '@services': './src/services',
+          '@types': './src/types',
+          '@app-types': './src/types',
         }
       },
     ],

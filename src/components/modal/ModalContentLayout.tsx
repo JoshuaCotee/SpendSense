@@ -1,78 +1,100 @@
-import React, { useRef, useState } from "react";
-import { View, StyleSheet, ScrollView, PanResponder, Animated } from "react-native";
+import React, { useRef, useMemo } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  PanResponder,
+  Platform,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTheme } from "@context/ThemeContext";
 
 interface ModalContentLayoutProps {
   children: React.ReactNode;
-  onDrag?: (dy: number) => void; // Drag callback from ModalLayout
-  onDragRelease?: (dy: number, vy: number) => void; // Release callback
+  onDrag?: (dy: number) => void;
+  onDragRelease?: (dy: number, vy: number) => void;
 }
 
-export const ModalContentLayout: React.FC<ModalContentLayoutProps> = ({
+export const ModalContentLayout: React.FC<ModalContentLayoutProps> = React.memo(({
   children,
   onDrag,
   onDragRelease,
 }) => {
+  const { theme } = useTheme();
   const scrollOffset = useRef(0);
-  const isScrolling = useRef(false);
+  const allowDrag = useRef(false);
 
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gesture) => {
-        return scrollOffset.current <= 0 && Math.abs(gesture.dy) > 5;
+        const shouldSet = scrollOffset.current <= 0 && gesture.dy > 5;
+        allowDrag.current = shouldSet;
+        return shouldSet;
       },
+
       onPanResponderMove: (_, gesture) => {
+        if (!allowDrag.current) return;
         let dy = gesture.dy;
-        if (dy < 0) dy *= 0.4;
+        if (dy < 0) dy *= 0.4; // resistance upward
         dy = Math.min(dy, 150);
         onDrag?.(dy);
       },
+
       onPanResponderRelease: (_, gesture) => {
+        if (!allowDrag.current) return;
+        allowDrag.current = false;
         onDragRelease?.(gesture.dy, gesture.vy);
       },
     })
   ).current;
 
+  const handleScroll = useRef((e: any) => {
+    scrollOffset.current = e.nativeEvent.contentOffset.y;
+  }).current;
+
+  const dynamicStyles = useMemo(() => ({
+    safeArea: { backgroundColor: theme.colors.background },
+    dragHandle: { backgroundColor: theme.colors.border },
+  }), [theme]);
+
   return (
-    <SafeAreaView edges={["top", "bottom"]} style={styles.safeArea}>
-      <View {...panResponder.panHandlers} style={styles.dragZone}>
-        <View style={styles.dragHandle} />
-      </View>
+    <SafeAreaView edges={["bottom"]} style={[styles.safeArea, dynamicStyles.safeArea]}>
+      <TouchableWithoutFeedback>
+        <View {...panResponder.panHandlers} style={styles.dragZone}>
+          <View style={[styles.dragHandle, dynamicStyles.dragHandle]} />
+        </View>
+      </TouchableWithoutFeedback>
 
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-        onScroll={(e) => {
-          scrollOffset.current = e.nativeEvent.contentOffset.y;
-        }}
-        onTouchStart={() => {
-          isScrolling.current = true;
-        }}
-        onTouchEnd={() => {
-          isScrolling.current = false;
-        }}
+        scrollEventThrottle={8}
+        decelerationRate={Platform.OS === "ios" ? "fast" : 0.98}
+        overScrollMode="never"
+        bounces={false}
+        nestedScrollEnabled={true}
+        onScroll={handleScroll}
+        removeClippedSubviews={true}
       >
         {children}
       </ScrollView>
     </SafeAreaView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   dragZone: {
-    paddingVertical: 25,
+    paddingVertical: 20,
     alignItems: "center",
     justifyContent: "center",
   },
   dragHandle: {
     width: 45,
     height: 5,
-    backgroundColor: "#ccc",
     borderRadius: 3,
   },
   scrollContainer: {

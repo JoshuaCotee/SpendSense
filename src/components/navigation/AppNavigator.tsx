@@ -20,6 +20,7 @@ const AppNavigator: React.FC = () => {
       headerShown: false,
       animation: "fade",
       gestureEnabled: false,
+      contentStyle: { backgroundColor: 'transparent' },
     }),
     []
   );

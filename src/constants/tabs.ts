@@ -17,6 +17,6 @@ export const TABS: TabItem[] = [
   { name: "Home", label: "Home", Svg: HomeSvg },
   { name: "Stats", label: "Stats", Svg: StatsSvg },
   { name: "Center", label: "", center: true, Svg: CenterSvg },
-  { name: "Goals", label: "Goals", Svg: GoalsSvg },
+  { name: "Analytics", label: "Analytics", Svg: GoalsSvg },
   { name: "Settings", label: "Settings", Svg: SettingsSvg },
 ];

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import {
   View,
   StyleSheet,
@@ -7,10 +7,13 @@ import {
   TouchableWithoutFeedback,
   PanResponder,
   Dimensions,
+  Easing,
+  Platform,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import { ModalContentLayout } from "./ModalContentLayout";
+import { useTheme } from "@context/ThemeContext";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -22,7 +25,7 @@ export interface ModalLayoutProps {
   onOpen?: () => void;
 }
 
-export const ModalLayout: React.FC<ModalLayoutProps> = ({
+export const ModalLayout: React.FC<ModalLayoutProps> = React.memo(({
   visible,
   onClose,
   children,
@@ -34,90 +37,111 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({
   const contentOpacity = useRef(new Animated.Value(0)).current;
   const [internalVisible, setInternalVisible] = useState(false);
   const insets = useSafeAreaInsets();
+  const isAnimating = useRef(false);
+  const { theme } = useTheme();
+  
+  // Calculate bottom tab bar height: SafeArea bottom + container paddingTop (10) + link height (60) + container paddingBottom (10-20)
+  // The center button extends 25px above, so we add that to ensure modal appears above it
+  const BOTTOM_TAB_HEIGHT = insets.bottom + 10 + 30 + (Platform.OS === "ios" ? 20 : 10) + 25;
+  
+  // Calculate modal height - leave space for tab bar at bottom
+  const MODAL_HEIGHT = SCREEN_HEIGHT - BOTTOM_TAB_HEIGHT;
 
-  // haptic
   const triggerHaptic = useCallback(
     (type: "open" | "close") => {
       if (!enableHaptic) return;
       const options = { enableVibrateFallback: true, ignoreAndroidSystemSettings: false };
-      if (type === "open") ReactNativeHapticFeedback.trigger("impactLight", options);
-      if (type === "close") ReactNativeHapticFeedback.trigger("impactMedium", options);
+      ReactNativeHapticFeedback.trigger(
+        type === "open" ? "impactLight" : "impactMedium",
+        options
+      );
     },
     [enableHaptic]
   );
 
-  // open animation
   const animateOpen = useCallback(() => {
+    if (isAnimating.current) return;
+    isAnimating.current = true;
+
     setInternalVisible(true);
-    Animated.parallel([
-      Animated.timing(translateY, {
-        toValue: SCREEN_HEIGHT * 0.1,
-        duration: 280,
-        useNativeDriver: true,
-      }),
-      Animated.timing(overlayOpacity, {
-        toValue: 1,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-      Animated.timing(contentOpacity, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      translateY.setValue(SCREEN_HEIGHT * 0.1);
-      triggerHaptic("open");
-      onOpen?.();
+
+    requestAnimationFrame(() => {
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 230,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayOpacity, {
+          toValue: 1,
+          duration: 180,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(contentOpacity, {
+          toValue: 1,
+          duration: 150,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        triggerHaptic("open");
+        onOpen?.();
+        isAnimating.current = false;
+      });
     });
   }, [translateY, overlayOpacity, contentOpacity, triggerHaptic, onOpen]);
 
-  // close
   const animateClose = useCallback(() => {
+    if (isAnimating.current) return;
+    isAnimating.current = true;
+
     Animated.parallel([
       Animated.timing(translateY, {
         toValue: SCREEN_HEIGHT,
-        duration: 250,
+        duration: 200,
+        easing: Easing.in(Easing.quad),
         useNativeDriver: true,
       }),
       Animated.timing(overlayOpacity, {
         toValue: 0,
-        duration: 200,
+        duration: 150,
+        easing: Easing.linear,
         useNativeDriver: true,
       }),
       Animated.timing(contentOpacity, {
         toValue: 0,
-        duration: 150,
+        duration: 120,
+        easing: Easing.linear,
         useNativeDriver: true,
       }),
     ]).start(() => {
       setInternalVisible(false);
-      onClose();
       triggerHaptic("close");
+      onClose();
+      isAnimating.current = false;
     });
-  }, [translateY, overlayOpacity, contentOpacity, onClose, triggerHaptic]);
+  }, [translateY, overlayOpacity, contentOpacity, triggerHaptic, onClose]);
 
-  // dragging
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dy) > 5,
 
       onPanResponderMove: (_, gesture) => {
-        const openY = SCREEN_HEIGHT * 0.1;
-        const newY = Math.min(SCREEN_HEIGHT, Math.max(openY, openY + gesture.dy));
-        translateY.setValue(newY);
+        const openY = 0;
+        if (gesture.dy > 0) translateY.setValue(openY + gesture.dy * 0.9);
       },
 
       onPanResponderRelease: (_, gesture) => {
-        const openY = SCREEN_HEIGHT * 0.1;
-
+        const openY = 0;
         if (gesture.dy > 120 || gesture.vy > 1) {
           animateClose();
         } else {
-          Animated.timing(translateY, {
+          Animated.spring(translateY, {
             toValue: openY,
-            duration: 180,
             useNativeDriver: true,
+            bounciness: 3,
           }).start();
         }
       },
@@ -127,15 +151,22 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({
   useEffect(() => {
     if (visible) animateOpen();
     else if (internalVisible) animateClose();
-  }, [visible]);
+  }, [visible, internalVisible, animateOpen, animateClose]);
 
+  // All hooks must be called before any early returns
+  const dynamicStyles = useMemo(() => ({
+    overlay: { backgroundColor: theme.colors.overlay },
+    modal: { backgroundColor: theme.colors.background },
+  }), [theme]);
+
+  // Early return after all hooks
   if (!internalVisible) return null;
 
   return (
     <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={animateClose}>
       <Animated.View style={[StyleSheet.absoluteFill, { opacity: overlayOpacity }]}>
         <TouchableWithoutFeedback onPress={animateClose}>
-          <View style={styles.overlay} />
+          <View style={[styles.overlay, dynamicStyles.overlay]} />
         </TouchableWithoutFeedback>
       </Animated.View>
 
@@ -143,33 +174,30 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({
         {...panResponder.panHandlers}
         style={[
           styles.modal,
+          dynamicStyles.modal,
           {
             transform: [{ translateY }],
-            bottom: insets.bottom + 25,
-            height: SCREEN_HEIGHT * 0.9 - (insets.bottom),
             opacity: contentOpacity,
+            maxHeight: MODAL_HEIGHT,
+            height: MODAL_HEIGHT,
+            bottom: 0,
           },
         ]}
-        onStartShouldSetResponder={() => true}
-        onMoveShouldSetResponder={() => true}
       >
         <ModalContentLayout>{children}</ModalContentLayout>
       </Animated.View>
     </Modal>
   );
-};
+});
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.45)",
   },
   modal: {
     position: "absolute",
     bottom: 0,
     width: "100%",
-    height: SCREEN_HEIGHT * 0.9,
-    backgroundColor: "#fff",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     shadowColor: "#000",

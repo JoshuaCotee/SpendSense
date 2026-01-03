@@ -7,7 +7,8 @@ import {
   Animated,
   useWindowDimensions,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getStorageItem, StorageType } from '@services/StorageService';
+import { logger } from '@utils/logger';
 import { useNavigation } from '@react-navigation/native';
 
 export default function SplashScreen() {
@@ -37,7 +38,10 @@ export default function SplashScreen() {
     // Check first-time user and navigate
     const checkFirstTime = async () => {
       try {
-        const firstTime = await AsyncStorage.getItem('first_time_user');
+        const firstTime = await getStorageItem<string>('first_time_user', {
+          type: StorageType.PLAIN,
+          defaultValue: undefined,
+        });
         const timer = setTimeout(() => {
           if (firstTime) {
             navigation.navigate('MainApp' as never);
@@ -47,7 +51,7 @@ export default function SplashScreen() {
         }, 2500);
         return () => clearTimeout(timer);
       } catch (error) {
-        console.error('Error checking first time user:', error);
+        logger.error('Error checking first time user', error);
       }
     };
 

@@ -11,7 +11,11 @@
       "@hooks/*": ["src/hooks/*"],
       "@context/*": ["src/context/*"],
       "@navigation/*": ["src/navigation/*"],
-      "@constants/*": ["src/constants/*"]
+      "@constants/*": ["src/constants/*"],
+      "@utils/*": ["src/utils/*"],
+      "@services/*": ["src/services/*"],
+      "@types/*": ["src/types/*"],
+      "@app-types/*": ["src/types/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
