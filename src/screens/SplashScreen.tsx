@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
-  Image,
+  Text,
   StyleSheet,
   StatusBar,
   Animated,
   useWindowDimensions,
+  Image,
 } from 'react-native';
 import { getStorageItem, StorageType } from '@services/StorageService';
 import { logger } from '@utils/logger';
@@ -14,12 +15,10 @@ import { useNavigation } from '@react-navigation/native';
 export default function SplashScreen() {
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
-
-  // Animation
-  const scaleAnim = new Animated.Value(1);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // Logo pulse animation
+    // Logo animation
     Animated.loop(
       Animated.sequence([
         Animated.timing(scaleAnim, {
@@ -35,31 +34,34 @@ export default function SplashScreen() {
       ])
     ).start();
 
-    // Check first-time user and navigate
+    // Check first-time user
     const checkFirstTime = async () => {
       try {
         const firstTime = await getStorageItem<string>('first_time_user', {
           type: StorageType.PLAIN,
           defaultValue: undefined,
         });
+        // Small delay
         const timer = setTimeout(() => {
           if (firstTime) {
             navigation.navigate('MainApp' as never);
           } else {
             navigation.navigate('Onboarding' as never);
           }
-        }, 2500);
+        }, 2000);
         return () => clearTimeout(timer);
       } catch (error) {
         logger.error('Error checking first time user', error);
+        setTimeout(() => {
+          navigation.navigate('Onboarding' as never);
+        }, 2000);
       }
     };
 
     checkFirstTime();
-  }, [navigation]);
+  }, [navigation, scaleAnim]);
 
-  // Responsive logo size
-  const logoSize = width * 0.6; // 60% of screen width
+  const logoSize = width * 0.5;
 
   return (
     <View style={styles.container}>
@@ -72,6 +74,7 @@ export default function SplashScreen() {
         ]}
         resizeMode="contain"
       />
+      <Text style={styles.creditText}>Made by Joshua Cote</Text>
     </View>
   );
 }
@@ -81,9 +84,15 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff', // same as web background
+    backgroundColor: '#fff',
   },
-  logo: {
-    // width/height are set dynamically for responsiveness
+  logo: {},
+  creditText: {
+    position: 'relative',
+    marginTop: 50,
+    fontSize: 14,
+    fontFamily: 'Space Grotesk',
+    color: '#666',
+    fontWeight: '500',
   },
 });

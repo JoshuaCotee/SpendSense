@@ -6,7 +6,7 @@
 
 **We're thrilled to announce the first official release of SpendSense - your comprehensive personal finance companion!**
 
-*Released: [Current Date]*
+*Released: 3rd Jan 2026*
 
 </div>
 

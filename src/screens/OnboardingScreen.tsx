@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 import { Image } from 'react-native';
 import { InputField } from '@components/ui/InputField';
@@ -246,20 +247,29 @@ export default function OnboardingScreen() {
 
   const finishOnboarding = async () => {
     try {
-      // Save first_time flag
+      // first_time flag
       await AsyncStorage.setItem('first_time_user', 'true');
-      
-      // Save name
+
       if (name.trim()) {
         await updateProfile({ firstName: name.trim() });
       }
       
-      // Navigate to app
-      navigation.navigate('MainApp' as never);
+      // Reset nav stack
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'MainApp' }],
+        })
+      );
     } catch (error) {
       logger.error('Error finishing onboarding', error);
-      // Navigate on error
-      navigation.navigate('MainApp' as never);
+      // Reset navv
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'MainApp' }],
+        })
+      );
     }
   };
 
@@ -286,9 +296,14 @@ export default function OnboardingScreen() {
     if (isNameInputScreen && name.trim()) {
       await finishOnboarding();
     } else {
-      // Navigate without name
+      // Navigate without name - reset stack to prevent going back
       await AsyncStorage.setItem('first_time_user', 'true');
-      navigation.navigate('MainApp' as never);
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'MainApp' }],
+        })
+      );
     }
   };
 

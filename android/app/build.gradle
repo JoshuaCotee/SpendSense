@@ -94,10 +94,25 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file(MYAPP_RELEASE_STORE_FILE) // from gradle.properties
-            storePassword MYAPP_RELEASE_STORE_PASSWORD
-            keyAlias MYAPP_RELEASE_KEY_ALIAS
-            keyPassword MYAPP_RELEASE_KEY_PASSWORD
+            // Read from gradle.properties or local.properties (local.properties takes precedence)
+            def keystoreFile = project.findProperty('MYAPP_RELEASE_STORE_FILE') ?: 'my-release-key.keystore'
+            def keystorePassword = project.findProperty('MYAPP_RELEASE_STORE_PASSWORD')
+            def keyAlias = project.findProperty('MYAPP_RELEASE_KEY_ALIAS') ?: 'my-key-alias'
+            def keyPassword = project.findProperty('MYAPP_RELEASE_KEY_PASSWORD')
+            
+            if (keystorePassword && keyPassword) {
+                storeFile file(keystoreFile)
+                storePassword keystorePassword
+                this.keyAlias = keyAlias
+                keyPassword = keyPassword
+            } else {
+                // If passwords not set, use debug signing for release builds
+                // This allows building without keystore for development
+                storeFile file('debug.keystore')
+                storePassword 'android'
+                this.keyAlias = 'androiddebugkey'
+                keyPassword = 'android'
+            }
         }
     }
     buildTypes {

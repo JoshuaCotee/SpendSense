@@ -34,7 +34,7 @@ interface EditTransactionProps {
 }
 
 export const EditTransaction: React.FC<EditTransactionProps> = React.memo(({ transaction, onClose, navigation }) => {
-  const { updateTransaction } = useTransactions();
+  const { updateTransaction, deleteTransaction } = useTransactions();
   const { showAlert } = useAlert();
   const { theme } = useTheme();
 
@@ -133,6 +133,41 @@ export const EditTransaction: React.FC<EditTransactionProps> = React.memo(({ tra
       autoDismiss: 2000,
     });
   }, [amount, category, account, type, date, note, imageUri, transaction.id, updateTransaction, showAlert, triggerHaptic, onClose]);
+
+  const handleDeleteTransaction = useCallback(() => {
+    showAlert({
+      title: "Delete Transaction",
+      message: "Are you sure you want to delete this transaction? This action cannot be undone.",
+      type: "warning",
+      buttons: [
+        {
+          text: "Cancel",
+          onPress: () => {},
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            deleteTransaction(transaction.id);
+            triggerHaptic("success");
+            showAlert({
+              title: "Deleted",
+              message: "Transaction deleted successfully!",
+              type: "success",
+              buttons: [
+                {
+                  text: "OK",
+                  onPress: () => {
+                    onClose();
+                  },
+                },
+              ],
+              autoDismiss: 2000,
+            });
+          },
+        },
+      ],
+    });
+  }, [transaction.id, deleteTransaction, showAlert, triggerHaptic, onClose]);
 
   const headerTabsStyle = useMemo(() => ({
     backgroundColor: theme.colors.surface,
@@ -330,7 +365,20 @@ export const EditTransaction: React.FC<EditTransactionProps> = React.memo(({ tra
           >
             <Text style={styles.addText}>Update</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.deleteBtn, { backgroundColor: theme.colors.error }]} 
+            onPress={handleDeleteTransaction}
+          >
+            <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                fill="#fff"
+              />
+            </Svg>
+          </TouchableOpacity>
         </View>
+        
       </View>
     </KeyboardAvoidingView>
   );
@@ -413,7 +461,14 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "Space Grotesk",
   },
-  footerButtons: { flexDirection: "row", gap: 10 },
+  footerButtons: { flexDirection: "row", gap: 10, alignItems: "center" },
+  deleteBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   amountInput: { 
     padding: 12, 
     borderRadius: 10, 

@@ -40,6 +40,7 @@ DerivedData/
 .idea/
 .gradle/
 local.properties
+android/local.properties
 *.iml
 *.hprof
 .cxx/
@@ -63,9 +64,12 @@ start-emulator.bat
 *.apk
 other/
 
-# Firebase
+# Firebase - Sensitive configuration files
 google-services.json
+android/app/google-services.json
 GoogleService-Info.plist
+ios/GoogleService-Info.plist
+ios/MyFinanceApp/GoogleService-Info.plist
 
 # EAS
 eas.json
@@ -86,3 +90,8 @@ BUILD_GUIDE.md
 QUICK_START_BUILD.md
 build-android.bat
 build-android.sh
+
+donotgo.md
+SECURITY.md
+README.md
+android/local.properties.example

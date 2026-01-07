@@ -71,6 +71,8 @@ export default React.memo(function HomeScreen() {
               <Text style={[styles.profileSubtitle, dynamicStyles.profileSubtitle]}>Your finances are looking good!</Text>
             </View>
           </View>
+          
+          {streak > 0 && (
           <View style={styles.profileContainerRight}>
             <View style={[styles.streakCounter, dynamicStyles.streakCounter]}>
               <Text style={styles.streakEmoji}>🔥</Text>
@@ -79,6 +81,8 @@ export default React.memo(function HomeScreen() {
               </Text>
             </View>
           </View>
+          )}
+
         </View>
 
         <View style={styles.homeTabContainer}>

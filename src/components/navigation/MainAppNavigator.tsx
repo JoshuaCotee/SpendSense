@@ -23,6 +23,7 @@ import CurrencySettings from "@screens/CurrencySettings";
 import PrivacyPolicy from "@screens/PrivacyPolicy";
 import TermsOfService from "@screens/TermsOfService";
 import ProfileScreen from "@screens/ProfileScreen";
+import PreferencesScreen from "@screens/PreferencesScreen";
 
 export type MainStackParamList = {
   SettingsMain: undefined;
@@ -33,6 +34,7 @@ export type MainStackParamList = {
   PrivacyPolicy: undefined;
   TermsOfService: undefined;
   ProfileScreen: undefined;
+  PreferencesScreen: undefined;
 };
 
 export type MainTabParamList = {
@@ -65,6 +67,7 @@ const SettingsStack: React.FC = () => {
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
       <Stack.Screen name="TermsOfService" component={TermsOfService} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <Stack.Screen name="PreferencesScreen" component={PreferencesScreen} />
     </Stack.Navigator>
   );
 };

@@ -10,7 +10,6 @@ import {
   Image,
   Modal,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DatePicker from "react-native-date-picker";
 import * as ImagePicker from "react-native-image-picker";
 import ReactNativeHapticFeedback from "react-native-haptic-feedback";
@@ -38,6 +37,25 @@ export const AddTransaction: React.FC<AddTransactionProps> = React.memo(({ onClo
   const { addTransaction } = useTransactions();
   const { showAlert } = useAlert();
   const { theme } = useTheme();
+  
+  // Get current route name
+  const getCurrentRoute = useCallback(() => {
+    try {
+      const state = navigation.getState();
+      if (!state || !state.routes || state.index === undefined) {
+        logger.warn("Could not get navigation state - routes or index missing");
+        return null;
+      }
+
+      const currentRoute = state.routes[state.index];
+      const routeName = currentRoute?.name || null;
+      logger.info(`Current route detected: ${routeName}`);
+      return routeName;
+    } catch (error) {
+      logger.error("Error getting current route", error);
+      return null;
+    }
+  }, [navigation]);
 
   const [type, setType] = useState<"Income" | "Expense">("Expense");
   const [date, setDate] = useState(new Date());
@@ -125,7 +143,7 @@ export const AddTransaction: React.FC<AddTransactionProps> = React.memo(({ onClo
       imageUri: imageUri || null,
     };
 
-    addTransaction(newTransaction); // UI updates instantly
+    addTransaction(newTransaction);
     triggerHaptic("success");
 
     showAlert({
@@ -137,18 +155,23 @@ export const AddTransaction: React.FC<AddTransactionProps> = React.memo(({ onClo
           text: "OK",
           onPress: () => {
             onClose();
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: "MainApp", state: { routes: [{ name: "Home" }] } }],
-              })
-            );
+            // Get route name
+            const currentRoute = getCurrentRoute();
+            
+            if (currentRoute && currentRoute !== "Stats") {
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: "MainApp", state: { routes: [{ name: "Home" }] } }],
+                })
+              );
+            }
           },
         },
       ],
       autoDismiss: 2000,
     });
-  }, [amount, category, account, type, date, note, imageUri, addTransaction, showAlert, triggerHaptic, onClose, navigation]);
+  }, [amount, category, account, type, date, note, imageUri, addTransaction, showAlert, triggerHaptic, onClose, navigation, getCurrentRoute]);
 
   const headerTabsStyle = useMemo(() => ({
     backgroundColor: theme.colors.surface,
@@ -289,7 +312,7 @@ export const AddTransaction: React.FC<AddTransactionProps> = React.memo(({ onClo
         )}
       </ScrollView>
 
-      {/* Full Screen Image Modal */}
+      {/* Image Modal */}
       <Modal
         visible={showImageModal}
         transparent={true}

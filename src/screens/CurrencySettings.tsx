@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import PageLayout from "@components/PageLayout";
 import { useCurrency, CURRENCIES } from "@context/CurrencyContext";
@@ -9,6 +9,13 @@ export default function CurrencySettings({ navigation }: any) {
   const { selectedCurrency, setCurrency } = useCurrency();
   const { theme } = useTheme();
 
+  // Sort currencies to show selected currency first
+  const sortedCurrencies = useMemo(() => {
+    const selected = CURRENCIES.find(c => c.code === selectedCurrency.code);
+    const others = CURRENCIES.filter(c => c.code !== selectedCurrency.code);
+    return selected ? [selected, ...others] : CURRENCIES;
+  }, [selectedCurrency]);
+
   return (
     <PageLayout title="Select Currency" showBack={true} navigation={navigation}>
       <ScrollView 
@@ -16,7 +23,7 @@ export default function CurrencySettings({ navigation }: any) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {CURRENCIES.map((currency) => {
+        {sortedCurrencies.map((currency) => {
           const isSelected = selectedCurrency.code === currency.code;
           return (
             <TouchableOpacity
@@ -88,7 +95,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 16,
+    padding: 15,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
@@ -102,8 +109,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   currencyIcon: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",

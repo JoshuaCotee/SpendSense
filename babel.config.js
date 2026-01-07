@@ -18,6 +18,7 @@ module.exports = {
           '@constants': './src/constants',
           '@utils': './src/utils',
           '@services': './src/services',
+          '@notification': './src/services/notification',
           '@types': './src/types',
           '@app-types': './src/types',
         }
